@@ -8,19 +8,26 @@ import time
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Webcam streaming client.")
-parser.add_argument('--record', type=bool, default=False, help='Record one frame per hour in /home/fari/images')
+parser.add_argument('--record', action='store_true', help='Record one frame per hour in /home/fari/images')
 args = parser.parse_args()
 
 # Ensure the output directory exists if recording is enabled
 if args.record:
-    output_dir = "/home/fari/images"
+    output_dir = "/home/fari/Pictures"
     os.makedirs(output_dir, exist_ok=True)
 
 # Start webcam
-cap = cv2.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
+cap = cv2.VideoCapture(1)
 
+# Check if the webcam is opened correctly
+if not cap.isOpened():
+    print("Error: Could not open webcam.")
+    exit()
+
+# Get original resolution of the webcam
+original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+print(original_width, original_height)
 # Create socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(('192.168.1.10', 8080))  # Replace with the backend's IP address
@@ -30,10 +37,14 @@ last_record_time = time.time()
 while True:
     success, img = cap.read()
     if not success:
+        print("Error: Failed to capture image.")
         break
 
-    # Serialize frame
-    data = pickle.dumps(img)
+    # Resize the image to 640x480 for transmission
+    img_small = cv2.resize(img, (640, 480))
+
+    # Serialize the resized frame
+    data = pickle.dumps(img_small)
 
     # Send message length first
     message_size = struct.pack("Q", len(data))
@@ -58,8 +69,14 @@ while True:
     bbox_data = data[:msg_size]
     bboxes = pickle.loads(bbox_data)
 
-    # Draw bounding boxes on the frame
+    # Draw bounding boxes on the original full-resolution frame
     for (x1, y1, x2, y2, cls, confidence) in bboxes:
+        # Scale bounding box coordinates to the original resolution
+        x1 = int(x1 * (original_width / 640))
+        y1 = int(y1 * (original_height / 480))
+        x2 = int(x2 * (original_width / 640))
+        y2 = int(y2 * (original_height / 480))
+        
         cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
         org = (x1, y1)
         font = cv2.FONT_HERSHEY_SIMPLEX
