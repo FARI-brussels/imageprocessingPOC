@@ -80,9 +80,9 @@ while True:
     for (x1, y1, x2, y2, cls, confidence) in bboxes:
         # Scale bounding box coordinates to the original resolution
         x1 = int(x1 * (original_width / 640))
-        y1 = int(y1 * (original_height / 480))
+        y1 = int(y1 * (original_height / 360))
         x2 = int(x2 * (original_width / 640))
-        y2 = int(y2 * (original_height / 480))
+        y2 = int(y2 * (original_height / 360))
         
         cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
         org = (x1, y1)
