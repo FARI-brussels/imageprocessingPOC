@@ -48,7 +48,7 @@ while True:
         break
 
     # Resize the image to 640x480 for transmission
-    img_small = cv2.resize(img, (640, 480))
+    img_small = cv2.resize(img, (640, 360))
 
     # Serialize the resized frame
     data = pickle.dumps(img_small)
