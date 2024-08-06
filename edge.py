@@ -19,18 +19,25 @@ if args.record:
 # Start webcam
 cap = cv2.VideoCapture(1)
 
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+
+
+
 # Check if the webcam is opened correctly
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
 # Get original resolution of the webcam
-original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+# Get the resolution to verify
+original_width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 print(original_width, original_height)
 # Create socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('192.168.1.10', 8080))  # Replace with the backend's IP address
+client_socket.connect(('192.168.2.11', 8080))  # Replace with the backend's IP address
 
 last_record_time = time.time()
 
