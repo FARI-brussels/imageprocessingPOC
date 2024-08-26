@@ -21,6 +21,7 @@ classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "trai
 def handle_client(client_socket):
     data = b""
     payload_size = struct.calcsize("Q")
+    client_socket.settimeout(10.0)  # Set a timeout of 10 seconds
 
     try:
         while True:
@@ -69,6 +70,8 @@ def handle_client(client_socket):
             bbox_size = struct.pack("Q", len(bbox_data))
             client_socket.sendall(bbox_size + bbox_data)
     
+    except socket.timeout:
+        print("Socket timeout, closing connection.")
     except Exception as e:
         print(f"Error: {e}")
     finally:
