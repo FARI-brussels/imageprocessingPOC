@@ -29,8 +29,10 @@ def handle_client(client_socket):
                 if not packet:
                     return  # Client disconnected
                 data += packet
-            if not data:
+            
+            if len(data) == 0:
                 return  # Client disconnected
+            
             packed_msg_size = data[:payload_size]
             data = data[payload_size:]
             msg_size = struct.unpack("Q", packed_msg_size)[0]
@@ -40,8 +42,10 @@ def handle_client(client_socket):
                 if not packet:
                     return  # Client disconnected
                 data += packet
-            if not data:
+            
+            if len(data) == 0:
                 return  # Client disconnected
+            
             frame_data = data[:msg_size]
             data = data[msg_size:]
 
@@ -68,6 +72,7 @@ def handle_client(client_socket):
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        print("Client disconnected, closing connection.")
         client_socket.close()
 
 # Create socket
